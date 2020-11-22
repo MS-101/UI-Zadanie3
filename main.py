@@ -1,4 +1,5 @@
 import random
+import copy
 
 
 class Stone:
@@ -106,7 +107,7 @@ def turn(move_direction, turn_direction, cur_pos_x, cur_pos_y, garden):
             move_direction = "up"
 
             return move_direction, cur_pos_x, cur_pos_y
-        elif cur_pos_x == garden.height - 1:
+        elif cur_pos_y == garden.height - 1:
             return "ok", -1, -1
         elif garden.arr[cur_pos_y + 1][cur_pos_x] == 0:
             cur_pos_x = cur_pos_x
@@ -186,25 +187,25 @@ def sweep_garden(movement_id, entrance_gene, turn_genes, garden):
                 move_direction = "right"
                 start_pos_x = 0
             else:
-                return "ok"
+                return False, "ok"
         elif move_direction == "right":
             if garden.arr[start_pos_y][garden.width - 1] == 0:
                 move_direction = "left"
                 start_pos_x = garden.width - 1
             else:
-                return "ok"
+                return False, "ok"
         elif move_direction == "up":
             if garden.arr[0][start_pos_x] == 0:
                 move_direction = "down"
                 start_pos_y = 0
             else:
-                return "ok"
+                return False, "ok"
         elif move_direction == "down":
             if garden.arr[garden.height - 1][start_pos_x] == 0:
                 move_direction = "up"
                 start_pos_y = garden.height - 1
             else:
-                return "ok"
+                return False, "ok"
 
     garden.arr[start_pos_y][start_pos_x] = movement_id
 
@@ -215,7 +216,7 @@ def sweep_garden(movement_id, entrance_gene, turn_genes, garden):
         if move_direction == "left":
             # movement is out of range
             if cur_pos_x == 0:
-                return "ok"
+                return True, "ok"
 
             # movement is legal
             if garden.arr[cur_pos_y][cur_pos_x - 1] == 0:
@@ -228,7 +229,7 @@ def sweep_garden(movement_id, entrance_gene, turn_genes, garden):
                 stone_id = get_stone_id(cur_pos_x - 1, cur_pos_y, garden.stones)
 
                 if stone_id == -1:
-                    return "error"
+                    return True, "error"
 
                 # first turn left
                 if turn_genes[stone_id] == 0:
@@ -236,9 +237,9 @@ def sweep_garden(movement_id, entrance_gene, turn_genes, garden):
                                                                 garden)
 
                     if move_direction == "error":
-                        return "error"
+                        return True, "error"
                     if move_direction == "ok":
-                        return "ok"
+                        return True, "ok"
 
                     garden.arr[cur_pos_y][cur_pos_x] = movement_id
                 # first turn right
@@ -247,9 +248,9 @@ def sweep_garden(movement_id, entrance_gene, turn_genes, garden):
                                                                 cur_pos_y, garden)
 
                     if move_direction == "error":
-                        return "error"
+                        return True, "error"
                     if move_direction == "ok":
-                        return "ok"
+                        return True, "ok"
 
                     garden.arr[cur_pos_y][cur_pos_x] = movement_id
             # movement is blocked by previous movement
@@ -258,16 +259,16 @@ def sweep_garden(movement_id, entrance_gene, turn_genes, garden):
                                                             cur_pos_y, garden)
 
                 if move_direction == "error":
-                    return "error"
+                    return True, "error"
                 if move_direction == "ok":
-                    return "ok"
+                    return True, "ok"
 
                 garden.arr[cur_pos_y][cur_pos_x] = movement_id
 
         elif move_direction == "right":
             # movement is out of range
             if cur_pos_x == garden.width - 1:
-                return "ok"
+                return True, "ok"
 
             # movement is legal
             if garden.arr[cur_pos_y][cur_pos_x + 1] == 0:
@@ -280,7 +281,7 @@ def sweep_garden(movement_id, entrance_gene, turn_genes, garden):
                 stone_id = get_stone_id(cur_pos_x + 1, cur_pos_y, garden.stones)
 
                 if stone_id == -1:
-                    return "error"
+                    return True, "error"
 
                 # first turn left
                 if turn_genes[stone_id] == 0:
@@ -288,9 +289,9 @@ def sweep_garden(movement_id, entrance_gene, turn_genes, garden):
                                                                 garden)
 
                     if move_direction == "error":
-                        return "error"
+                        return True, "error"
                     if move_direction == "ok":
-                        return "ok"
+                        return True, "ok"
 
                     garden.arr[cur_pos_y][cur_pos_x] = movement_id
                 # first turn right
@@ -299,9 +300,9 @@ def sweep_garden(movement_id, entrance_gene, turn_genes, garden):
                                                                 cur_pos_y, garden)
 
                     if move_direction == "error":
-                        return "error"
+                        return True, "error"
                     if move_direction == "ok":
-                        return "ok"
+                        return True, "ok"
 
                     garden.arr[cur_pos_y][cur_pos_x] = movement_id
             # movement is blocked by previous movement
@@ -310,16 +311,16 @@ def sweep_garden(movement_id, entrance_gene, turn_genes, garden):
                                                             cur_pos_y, garden)
 
                 if move_direction == "error":
-                    return "error"
+                    return True, "error"
                 if move_direction == "ok":
-                    return "ok"
+                    return True, "ok"
 
                 garden.arr[cur_pos_y][cur_pos_x] = movement_id
 
         elif move_direction == "up":
             # movement is out of range
             if cur_pos_y == 0:
-                return "ok"
+                return True, "ok"
 
             # movement is legal
             if garden.arr[cur_pos_y - 1][cur_pos_x] == 0:
@@ -332,7 +333,7 @@ def sweep_garden(movement_id, entrance_gene, turn_genes, garden):
                 stone_id = get_stone_id(cur_pos_x, cur_pos_y - 1, garden.stones)
 
                 if stone_id == -1:
-                    return "error"
+                    return True, "error"
 
                 # first turn left
                 if turn_genes[stone_id] == 0:
@@ -340,9 +341,9 @@ def sweep_garden(movement_id, entrance_gene, turn_genes, garden):
                                                                 garden)
 
                     if move_direction == "error":
-                        return "error"
+                        return True, "error"
                     if move_direction == "ok":
-                        return "ok"
+                        return True, "ok"
 
                     garden.arr[cur_pos_y][cur_pos_x] = movement_id
                 # first turn right
@@ -351,9 +352,9 @@ def sweep_garden(movement_id, entrance_gene, turn_genes, garden):
                                                                 cur_pos_y, garden)
 
                     if move_direction == "error":
-                        return "error"
+                        return True, "error"
                     if move_direction == "ok":
-                        return "ok"
+                        return True, "ok"
 
                     garden.arr[cur_pos_y][cur_pos_x] = movement_id
             # movement is blocked by previous movement
@@ -362,16 +363,16 @@ def sweep_garden(movement_id, entrance_gene, turn_genes, garden):
                                                             cur_pos_y, garden)
 
                 if move_direction == "error":
-                    return "error"
+                    return True, "error"
                 if move_direction == "ok":
-                    return "ok"
+                    return True, "ok"
 
                 garden.arr[cur_pos_y][cur_pos_x] = movement_id
 
         elif move_direction == "down":
             # movement is out of range
             if cur_pos_y == garden.height - 1:
-                return "ok"
+                return True, "ok"
 
             # movement is legal
             if garden.arr[cur_pos_y + 1][cur_pos_x] == 0:
@@ -384,7 +385,7 @@ def sweep_garden(movement_id, entrance_gene, turn_genes, garden):
                 stone_id = get_stone_id(cur_pos_x, cur_pos_y + 1, garden.stones)
 
                 if stone_id == -1:
-                    return "error"
+                    return True, "error"
 
                 # first turn left
                 if turn_genes[stone_id] == 0:
@@ -392,9 +393,9 @@ def sweep_garden(movement_id, entrance_gene, turn_genes, garden):
                                                                 garden)
 
                     if move_direction == "error":
-                        return "error"
+                        return True, "error"
                     if move_direction == "ok":
-                        return "ok"
+                        return True, "ok"
 
                     garden.arr[cur_pos_y][cur_pos_x] = movement_id
                 # first turn right
@@ -403,9 +404,9 @@ def sweep_garden(movement_id, entrance_gene, turn_genes, garden):
                                                                 cur_pos_y, garden)
 
                     if move_direction == "error":
-                        return "error"
+                        return True, "error"
                     if move_direction == "ok":
-                        return "ok"
+                        return True, "ok"
 
                     garden.arr[cur_pos_y][cur_pos_x] = movement_id
             # movement is blocked by previous movement
@@ -414,9 +415,9 @@ def sweep_garden(movement_id, entrance_gene, turn_genes, garden):
                                                             cur_pos_y, garden)
 
                 if move_direction == "error":
-                    return "error"
+                    return True, "error"
                 if move_direction == "ok":
-                    return "ok"
+                    return True, "ok"
 
                 garden.arr[cur_pos_y][cur_pos_x] = movement_id
 
@@ -427,12 +428,16 @@ def get_fitness(genes, garden):
     entrance_count = garden.width + garden.height
     turn_genes = genes[entrance_count:]
 
+    entrance_id = 1
     for i in range(0, entrance_count):
         entrance_gene = genes[i]
-        end_message = sweep_garden(i + 1, entrance_gene, turn_genes, garden)
+        has_moved, end_message = sweep_garden(entrance_id, entrance_gene, turn_genes, garden)
 
         if end_message == "error":
             break
+
+        if has_moved is True:
+            entrance_id += 1
 
     for pos_y in range(0, garden.height):
         for pos_x in range(0, garden.width):
@@ -487,7 +492,9 @@ def print_garden(garden):
     for pos_y in range(0, garden.height):
         for pos_x in range(0, garden.width):
             if garden.arr[pos_y][pos_x] == -1:
-                print("K", end="")
+                print("KK", end="")
+            elif garden.arr[pos_y][pos_x] < 10:
+                print("0" + str(garden.arr[pos_y][pos_x]), end="")
             else:
                 print(garden.arr[pos_y][pos_x], end="")
 
@@ -623,6 +630,7 @@ while True:
 
 while True:
     inputMethod = input("Zadajte metódu výberu rodičov (A - ruleta, B - turnaj): ")
+    inputMethod = inputMethod.upper()
 
     if inputMethod == "A" or inputMethod == "B":
         break
@@ -633,20 +641,21 @@ print()
 
 myGarden = get_garden_from_file(inputFileName)
 
+entranceCount = myGarden.width + myGarden.height
+turnCount = len(myGarden.stones)
+
 """
 print("Garden:")
 print_garden(myGarden)
 print()
 """
 
-entranceCount = myGarden.width + myGarden.height
-turnCount = len(myGarden.stones)
 
 # create first generation
 curGeneration = []
-for generationID in range(0, 20):
+for generationID in range(0, 10):
     monkGenes = generate_genes(myGarden)
-    monkGarden, monkFitness = get_fitness(monkGenes, myGarden)
+    monkGarden, monkFitness = get_fitness(monkGenes, copy.deepcopy(myGarden))
     myMonk = Monk(monkGenes, monkFitness, monkGarden, entranceCount, turnCount)
 
     curGeneration.append(myMonk)
@@ -656,6 +665,7 @@ print("First generation:")
 for pickedMonk in curGeneration:
     print("Genes: ", end="")
     print_genes(pickedMonk.genes)
+    # print_garden(pickedMonk.garden)
     print("Fitness = " + str(pickedMonk.fitness))
 print()
 """
@@ -669,7 +679,7 @@ for generationID in range(0, 50):
             parent1, parent2 = tournament_selection(curGeneration)
         childGenes = crossover(parent1, parent2)
         mutate(childGenes, entranceCount)
-        childGarden, childFitness = get_fitness(childGenes, myGarden)
+        childGarden, childFitness = get_fitness(childGenes, copy.deepcopy(myGarden))
 
         newChild = Monk(childGenes, childFitness, childGarden, entranceCount, turnCount)
         newGeneration.append(newChild)
@@ -681,6 +691,7 @@ for generationID in range(0, 50):
     for pickedMonk in curGeneration:
         print("Genes: ", end="")
         print_genes(pickedMonk.genes)
+        # print_garden(pickedMonk.garden)
         print("Fitness = " + str(pickedMonk.fitness))
     print()
     """
